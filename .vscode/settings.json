@@ -1,5 +1,15 @@
 {
     "files.associations": {
-        "*.h": "c"
+        "*.h": "c",
+        "bitset": "c",
+        "coroutine": "c",
+        "string": "c",
+        "vector": "c",
+        "memory": "c",
+        "optional": "c",
+        "string_view": "c",
+        "system_error": "c",
+        "text_encoding": "c",
+        "variant": "c"
     },
 }

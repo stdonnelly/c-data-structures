@@ -8,7 +8,7 @@ int main(int argc, char const *argv[])
 {
     HashMap map = new_HashMap();
     char input_buffer[32];
-    int value;
+    long long value;
     scanf("%31s", input_buffer);
     while (!ferror(stdin) && !feof(stdin))
     {
@@ -19,8 +19,8 @@ int main(int argc, char const *argv[])
         else if (!strcmp("put", input_buffer))
         {
             // Make sure there is another value
-            if (scanf("%31s %d", input_buffer, &value))
-                put_map(&map, input_buffer, value);
+            if (scanf("%31s %lld", input_buffer, &value))
+                put_map(&map, input_buffer, (union Value){.val = value});
             else
                 printf("Incorrect number of arguments\n");
         }
@@ -29,7 +29,12 @@ int main(int argc, char const *argv[])
         {
             // Make sure there is another value
             if (scanf("%31s", input_buffer))
-                printf("%s -> %d\n", input_buffer, get_map(&map, input_buffer));
+            {
+                if (get_map(&map, input_buffer, &(union Value){.val = value}))
+                    printf("%s -> %lld\n", input_buffer, value);
+                else
+                    printf("%s -> None\n", input_buffer);
+            }
             else
                 printf("Incorrect number of arguments\n");
         }

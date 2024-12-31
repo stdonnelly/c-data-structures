@@ -35,9 +35,26 @@ void delete_HashMap(HashMap *map)
     free(map->buckets);
 }
 
-int get_map(HashMap *map, char *key)
+void delete_HashMap_free_values(HashMap *map)
 {
-    int value = -1;
+    for (int i = 0; i < map->capacity; i++)
+    {
+        MapEntry *bucket_node = map->buckets[i];
+        while (bucket_node)
+        {
+            MapEntry *next = bucket_node->next;
+            free(bucket_node->value.ptr);
+            free(bucket_node->key);
+            free(bucket_node);
+            bucket_node = next;
+        }
+    }
+    free(map->buckets);
+}
+
+int get_map(HashMap *map, char *key, union Value *value)
+{
+    int exists = 0;
     // Get CRC32 hash and apply bit mask
     unsigned long hash = crc32(key);
     hash &= map->capacity - 1;
@@ -48,7 +65,8 @@ int get_map(HashMap *map, char *key)
         // If the key is equal, use this value
         if (!strcmp(entry->key, key))
         {
-            value = entry->value;
+            *value = entry->value;
+            exists = 1;
             break;
         }
 
@@ -56,10 +74,10 @@ int get_map(HashMap *map, char *key)
         entry = entry->next;
     }
 
-    return value;
+    return exists;
 }
 
-void put_map(HashMap *map, char *key, int value)
+void put_map(HashMap *map, char *key, union Value value)
 {
     // printf("Putting value '%d' at key '%s' in map...\n", value, key);
     // Add an element to the size and check if this should grow

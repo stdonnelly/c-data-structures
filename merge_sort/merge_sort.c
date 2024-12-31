@@ -1,43 +1,46 @@
-#include <errno.h>
-#include <limits.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "merge_sort.h"
-
-// Allows testing of merge sort header
-int main(int argc, char const *argv[])
+void merge_sort(int *arr, int arr_size)
 {
-    // Read arguments at integers
-    int *arr = malloc(sizeof(int) * (argc - 1));
-    for (int i = 1; i < argc; i++)
+    // A length 1 array or an empty array are always sorted
+    if (arr_size <= 1)
     {
-        long value = strtol(argv[i], NULL, 10);
-        if (errno)
-        {
-            perror("Error reading argument");
-            goto CLEANUP;
-        }
-        else if (value < INT_MIN)
-        {
-            fprintf(stderr, "Value %ld is too low to represent as an integer\n", value);
-            goto CLEANUP;
-        }
-        else if (value > INT_MAX)
-        {
-            fprintf(stderr, "Value %ld is too high to represent as an integer\n", value);
-            goto CLEANUP;
-        }
-
-        arr[i - 1] = (int)value;
+        return;
     }
 
-    // Sort and print
-    merge_sort(arr, argc - 1);
-    for (int i = 0; i < argc - 1; i++)
-        printf("%d ", arr[i]);
-    printf("\n");
+    // Put the left and right halves in new temporary arrays to be sorted by recursive call
+    int mid = arr_size / 2;
+    int *left = malloc(sizeof(int) * mid);
+    int *right = malloc(sizeof(int) * arr_size - mid);
+    memcpy(left, arr, sizeof(int) * mid);
+    memcpy(right, arr + mid, sizeof(int) * (arr_size - mid));
 
-CLEANUP:
-    free(arr);
-    return 0;
+    // Sort the left and right halves
+    merge_sort(left, mid);
+    merge_sort(right, arr_size - mid);
+
+    // Merge
+    int left_cursor = 0;
+    int right_cursor = 0;
+    int destination_cursor = 0;
+
+    while (left_cursor < mid && right_cursor < arr_size - mid)
+    {
+        // Merge the smaller number into the destination array
+        if (left[left_cursor] < right[right_cursor])
+            arr[destination_cursor++] = left[left_cursor++];
+        else
+            arr[destination_cursor++] = right[right_cursor++];
+    }
+
+    // Copy the rest, if applicable
+    while (left_cursor < mid)
+        arr[destination_cursor++] = left[left_cursor++];
+    while (right_cursor < arr_size - mid)
+        arr[destination_cursor++] = right[right_cursor++];
+
+    // Free the temporary arrays
+    free(left);
+    free(right);
 }
